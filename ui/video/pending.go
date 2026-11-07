@@ -1,4 +1,4 @@
-//go:build darwin || windows || js
+//go:build windows || js
 
 package video
 

@@ -29,7 +29,8 @@ type Engine interface {
 	// the engine closes.
 	Frame(t time.Time) (f Picture, changed, ok bool)
 	// Interval is how long a picture shows at the video's nominal rate at
-	// rate 1, for the window to ask for its next frame; 0 when unknown.
+	// rate 1, for the window to ask for its next frame as each comes due;
+	// 0 for an engine that wakes the window as each picture comes due.
 	Interval() time.Duration
 	// State reports how loading and playing go, and the error that
 	// stopped the video, if any.

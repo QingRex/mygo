@@ -169,11 +169,7 @@ func (v *videoEngine) advance(c *context, p *VideoPlayer) {
 			p.bitmap.showPicture(pic)
 		}
 	}
-	if v.playing() && !v.held && v.state != media.Loading {
-		d := v.e.Interval()
-		if d <= 0 {
-			d = time.Second / 60
-		}
+	if d := v.e.Interval(); d > 0 && v.playing() && !v.held && v.state != media.Loading {
 		c.After(time.Duration(float64(d) / p.rate))
 	}
 }

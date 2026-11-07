@@ -6,6 +6,8 @@ import (
 	"errors"
 	"syscall/js"
 	"unsafe"
+
+	"github.com/egoist/mygo/internal/media"
 )
 
 // Context is the WebGL 2 context of a canvas, which renderers draw with
@@ -379,4 +381,16 @@ func boolInt(b bool) int32 {
 		return 1
 	}
 	return 0
+}
+
+// uploadElement uploads the picture of the video element of a surface's
+// Native into the bound texture, of its size, GPU to GPU, reporting
+// whether there was one.
+func uploadElement(native uintptr) bool {
+	el := media.ElementOf(native)
+	if el.IsUndefined() || el.Get("readyState").Int() < 2 { // HAVE_CURRENT_DATA
+		return false
+	}
+	call("texSubImage2D", glTexture2D, 0, 0, 0, glRGBA, glUnsignedByte, el)
+	return true
 }

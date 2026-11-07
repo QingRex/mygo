@@ -21,7 +21,9 @@ type Surface struct {
 	// Windows the NT handle of a shared Direct3D 11 texture in BGRA with a
 	// keyed mutex, which Direct3D opens on its device once (NativeID) and
 	// acquires with key 0 around the frames reading it, as the producer
-	// does around writing it. 0 for none. The producer keeps it valid
+	// does around writing it; in browsers the number of the video element
+	// playing it (media.AddElement), which WebGL uploads from. 0 for
+	// none. The producer keeps it valid
 	// while the image shows the surface; renderers keep what they made of
 	// it until the GPU read it.
 	Native uintptr

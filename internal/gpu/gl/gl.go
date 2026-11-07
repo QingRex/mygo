@@ -549,6 +549,8 @@ func (r *Renderer) imageTexture(img *scene.Image) uintptr {
 	}
 	if s := img.Surface; s != nil && s.Format == scene.SurfaceNV12 && s.Planes[1].Pix != nil {
 		return r.planesTexture(img, s)
+	} else if s != nil && s.Native != 0 {
+		return r.elementTexture(img, s)
 	}
 	t := r.images[img.ID()]
 	if t != nil && t.chroma != 0 {
@@ -614,6 +616,33 @@ func (r *Renderer) planesTexture(img *scene.Image, s *scene.Surface) uintptr {
 		unpack(s.Planes[1].Stride, glRG8)
 		glTexSubImage2D(glTexture2D, 0, 0, 0, int32(cw), int32(ch), glRG, glUnsignedByte, unsafe.Pointer(&s.Planes[1].Pix[0]))
 		unpackReset()
+		t.ver = img.Version()
+	}
+	t.lastFrame = r.frame
+	return uintptr(t.tex)
+}
+
+// elementTexture uploads the frame of video of a browser's video element
+// (the surface's Native) into the texture it returns, GPU to GPU.
+func (r *Renderer) elementTexture(img *scene.Image, s *scene.Surface) uintptr {
+	t := r.images[img.ID()]
+	if t != nil && (t.chroma != 0 || t.w != img.W || t.h != img.H) {
+		glDeleteTextures(1, &t.tex)
+		if t.chroma != 0 {
+			glDeleteTextures(1, &t.chroma)
+		}
+		delete(r.images, img.ID())
+		t = nil
+	}
+	if t == nil {
+		t = &texture{tex: newTexture(glRGBA8, glRGBA, img.W, img.H, nil, 0), w: img.W, h: img.H}
+		r.images[img.ID()] = t
+	}
+	if t.ver != img.Version() {
+		glBindTexture(glTexture2D, t.tex)
+		if !uploadElement(s.Native) {
+			return 0
+		}
 		t.ver = img.Version()
 	}
 	t.lastFrame = r.frame

@@ -1,4 +1,4 @@
-//go:build !(linux && (amd64 || arm64)) && !darwin && !windows && !js
+//go:build !(linux && (amd64 || arm64)) && !darwin && !(windows && (amd64 || arm64)) && !js
 
 package video
 
